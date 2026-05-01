@@ -35,6 +35,21 @@ export async function fetchTopClubs(limit) {
   }
 }
 
+export async function fetchClubTopPlayers(clubId) {
+  try {
+    const response = await apiClient.get(`/clubs/${clubId}/top-players`);
+    return response.data
+      .filter(p => p.punktisumma != null)
+      .map((p, idx) => ({
+        id: idx,
+        name: p.isik,
+        ranking: p.punktisumma,
+      }));
+  } catch (error) {
+    console.error('Error fetching club top players', error);
+  }
+}
+
 export async function removeClub(clubId) {
   try {
     await apiClient.delete(`/clubs/${clubId}`);

@@ -40,6 +40,32 @@
             @club-updated="fetchClubData"
           />
         </v-col>
+
+        <v-col cols="12" md="6" lg="8">
+          <h2 class="mb-3">TOP mängijad</h2>
+          <div v-if="topPlayers.length">
+            <v-card
+              v-for="(player, index) in topPlayers"
+              :key="player.id"
+              class="mb-2"
+            >
+              <v-card-title>
+                <v-row align="center">
+                  <v-col cols="8">
+                    <v-chip :color="getChipColor(index)" class="ma-2" label>{{ index + 1 }}</v-chip>
+                    {{ player.name }}
+                  </v-col>
+                  <v-col cols="4" class="text-right points">
+                    {{ player.ranking }}
+                  </v-col>
+                </v-row>
+              </v-card-title>
+            </v-card>
+          </div>
+          <div v-else class="text-medium-emphasis">
+            Klubil pole piisavalt mängijaid edetabeli jaoks.
+          </div>
+        </v-col>
       </v-row>
 
       <v-row cols="12" md="8">
@@ -67,7 +93,7 @@
 </template>
 
 <script>
-import {fetchClubById} from "@/wrapper/clubsApiWrapper.js";
+import {fetchClubById, fetchClubTopPlayers} from "@/wrapper/clubsApiWrapper.js";
 import PlayersSearchTable from "@/components/clubs/PlayersSearchTable.vue";
 import AddClubDialog from "@/components/clubs/AddClubDialog.vue";
 import ModifyClubForm from "@/components/clubs/ModifyClubForm.vue";
@@ -83,6 +109,7 @@ export default {
     return {
       club: null,
       clubId: null,
+      topPlayers: [],
       showModifyClubDialog: false,
     }
   },
@@ -97,6 +124,15 @@ export default {
   methods: {
     async fetchClubData() {
       this.club = await fetchClubById(this.clubId)
+      this.topPlayers = (await fetchClubTopPlayers(this.clubId)) || []
+    },
+    getChipColor(index) {
+      switch (index) {
+        case 0: return 'gold';
+        case 1: return 'silver';
+        case 2: return 'bronze';
+        default: return 'primary';
+      }
     },
     openModifyClubDialog() {
       this.showModifyClubDialog = true;
@@ -114,6 +150,11 @@ export default {
   margin-bottom: 1.5rem;
   font-size: 2rem;
   font-weight: bold;
+}
+
+.points {
+  font-size: 1.1rem;
+  color: #9AA6B2;
 }
 
 </style>
